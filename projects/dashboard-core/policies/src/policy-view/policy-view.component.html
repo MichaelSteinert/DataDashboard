@@ -32,7 +32,7 @@
   ></lib-item-count-selector>
   <lib-pagination
     [items]="filteredPolicies$ | async"
-    [pageItemCount]="15"
+    [pageItemCount]="pageItemCount"
     (pageItems)="paginationEvent($event)"
     class="shadow-xl rounded-2xl bg-base-300 [&_button:hover]:bg-base-100 [&_.join>button]:first:rounded-l-2xl [&_.join>button]:last:rounded-r-2xl"
   ></lib-pagination>

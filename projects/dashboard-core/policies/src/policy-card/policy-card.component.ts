@@ -41,19 +41,27 @@ export class PolicyCardComponent implements OnChanges {
     this.id = this.policyDefinition?.id;
     this.policy = this.policyDefinition?.policy;
 
+    this.hasPermissions = false;
+    this.hasProhibitions = false;
+    this.hasObligations = false;
+
+    if (!this.policy) {
+      return;
+    }
+
     // Extract the last part of the policy type URL
-    const types = this.policy!.types();
+    const types = this.policy.types();
     if (types && types.length > 0) {
       this.policyType = types[0].split('/').pop(); // Get the last element after the last '/'
     }
 
-    if (this.policy && this.policy.permissions.length > 0) {
+    if (this.policy.permissions.length > 0) {
       this.hasPermissions = true;
     }
-    if (this.policy && this.policy.prohibitions.length > 0) {
+    if (this.policy.prohibitions.length > 0) {
       this.hasProhibitions = true;
     }
-    if (this.policy && this.policy.obligations.length > 0) {
+    if (this.policy.obligations.length > 0) {
       this.hasObligations = true;
     }
   }

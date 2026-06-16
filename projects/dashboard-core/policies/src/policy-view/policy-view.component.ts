@@ -124,7 +124,7 @@ export class PolicyViewComponent implements OnInit, OnDestroy {
             })
             .catch(error => {
               console.error(error);
-              const msg = `Deletion of asset '${policy.id}' failed`;
+              const msg = `Deletion of policy '${policy.id}' failed`;
               this.modalAndAlertService.showAlert(msg, undefined, 'error', 5);
             });
         },
