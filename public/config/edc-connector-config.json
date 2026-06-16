@@ -1,20 +1,20 @@
 [
   {
     "connectorName": "Consumer",
-    "managementUrl": "http://cp-consumer.dataspace/management",
-    "defaultUrl": "http://cp-consumer.dataspace/api",
-    "protocolUrl": "http://cp-consumer.dataspace/protocol/2025-1",
+    "managementUrl": "http://localhost:29193/management",
+    "defaultUrl": "http://localhost:29191/api",
+    "protocolUrl": "http://localhost:29194/protocol/2025-1",
     "federatedCatalogEnabled": false,
-    "federatedCatalogUrl": "http://fc-consumer.dataspace/catalog",
+    "federatedCatalogUrl": "",
     "did": "did:web:ih-consumer.dataspace"
   },
   {
     "connectorName": "Provider",
-    "managementUrl": "http://cp-provider.dataspace/management",
-    "defaultUrl": "http://cp-provider.dataspace/api",
-    "protocolUrl": "http://cp-provider.dataspace/protocol/2025-1",
+    "managementUrl": "http://localhost:19193/management",
+    "defaultUrl": "http://localhost:19191/api",
+    "protocolUrl": "http://localhost:19194/protocol/2025-1",
     "federatedCatalogEnabled": false,
-    "federatedCatalogUrl": "http://fc-provider.dataspace/catalog",
+    "federatedCatalogUrl": "",
     "did": "did:web:ih-provider.dataspace"
   }
 ]

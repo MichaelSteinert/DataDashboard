@@ -42,46 +42,250 @@
     </fieldset>
   </div>
 
-  <div class="flex flex-col">
-    <fieldset class="fieldset w-lg bg-base-200 border border-base-300 p-4 rounded-box">
-      <legend class="fieldset-legend text-sm">Properties</legend>
-      <legend class="fieldset-label">Permissions</legend>
-      <label class="input flex items-center tooltip tooltip-info tooltip-top w-full" data-tip="Expects JSON">
-        <span class="material-symbols-rounded opacity-50">file_json</span>
-        <input
-          type="text"
-          class="grow"
-          placeholder="Permissions"
-          [(ngModel)]="permissionsJson"
-          name="permissionsJson"
-        />
-        <span class="badge badge-info">Optional</span>
-      </label>
-      <legend class="fieldset-label">Prohibitions</legend>
-      <label class="input flex items-center tooltip tooltip-info tooltip-top w-full" data-tip="Expects JSON">
-        <span class="material-symbols-rounded opacity-50">file_json</span>
-        <input
-          type="text"
-          class="grow"
-          placeholder="Prohibitions"
-          [(ngModel)]="prohibitionsJson"
-          name="prohibitionsJson"
-        />
-        <span class="badge badge-info">Optional</span>
-      </label>
-      <legend class="fieldset-label">Obligations</legend>
-      <label class="input flex items-center tooltip tooltip-info tooltip-top w-full" data-tip="Expects JSON">
-        <span class="material-symbols-rounded opacity-50">file_json</span>
-        <input
-          type="text"
-          class="grow"
-          placeholder="Obligations"
-          [(ngModel)]="obligationsJson"
-          name="obligationsJson"
-        />
-        <span class="badge badge-info">Optional</span>
-      </label>
-    </fieldset>
+  <div class="flex flex-col w-lg">
+    <div class="tabs tabs-box mb-4">
+      <a class="tab" [class.tab-active]="uiMode === 'builder'" (click)="uiMode = 'builder'">Builder Mode</a>
+      <a class="tab" [class.tab-active]="uiMode === 'json'" (click)="uiMode = 'json'">Raw JSON Mode</a>
+    </div>
+
+    @if (uiMode === 'json') {
+      <fieldset class="fieldset w-full bg-base-200 border border-base-300 p-4 rounded-box">
+        <legend class="fieldset-legend text-sm">Properties (JSON)</legend>
+        <legend class="fieldset-label">Permissions</legend>
+        <label class="input flex items-center tooltip tooltip-info tooltip-top w-full" data-tip="Expects JSON">
+          <span class="material-symbols-rounded opacity-50">file_json</span>
+          <input
+            type="text"
+            class="grow"
+            placeholder="Permissions"
+            [(ngModel)]="permissionsJson"
+            name="permissionsJson"
+          />
+          <span class="badge badge-info">Optional</span>
+        </label>
+        <legend class="fieldset-label">Prohibitions</legend>
+        <label class="input flex items-center tooltip tooltip-info tooltip-top w-full" data-tip="Expects JSON">
+          <span class="material-symbols-rounded opacity-50">file_json</span>
+          <input
+            type="text"
+            class="grow"
+            placeholder="Prohibitions"
+            [(ngModel)]="prohibitionsJson"
+            name="prohibitionsJson"
+          />
+          <span class="badge badge-info">Optional</span>
+        </label>
+        <legend class="fieldset-label">Obligations</legend>
+        <label class="input flex items-center tooltip tooltip-info tooltip-top w-full" data-tip="Expects JSON">
+          <span class="material-symbols-rounded opacity-50">file_json</span>
+          <input
+            type="text"
+            class="grow"
+            placeholder="Obligations"
+            [(ngModel)]="obligationsJson"
+            name="obligationsJson"
+          />
+          <span class="badge badge-info">Optional</span>
+        </label>
+      </fieldset>
+    } @else {
+      <fieldset class="fieldset w-full bg-base-200 border border-base-300 p-4 rounded-box">
+        <legend class="fieldset-legend text-sm">Permissions</legend>
+        @for (rule of permissions; track ruleIndex; let ruleIndex = $index) {
+          <div class="bg-base-100 p-2 rounded mb-2 border border-base-300 relative">
+            <button
+              class="btn btn-sm btn-ghost btn-circle absolute top-1 right-1"
+              (click)="removeRule('permissions', ruleIndex)"
+            >
+              <span class="material-symbols-rounded">close</span>
+            </button>
+            <label class="fieldset-label text-xs">Action</label>
+            <select
+              class="select select-sm select-bordered w-full mb-2"
+              [(ngModel)]="rule.action"
+              [name]="'perm_action_' + ruleIndex"
+            >
+              <option value="" disabled selected>Select Action</option>
+              @for (act of availableActions; track $index) {
+                <option [value]="act">{{ act }}</option>
+              }
+            </select>
+
+            <div class="ml-4 pl-2 border-l border-base-300">
+              <label class="fieldset-label text-xs">Constraints</label>
+              @for (c of rule.constraints; track cIndex; let cIndex = $index) {
+                <div class="flex gap-2 items-center mb-2">
+                  <select
+                    class="select select-xs select-bordered w-1/3"
+                    [(ngModel)]="c.leftOperand"
+                    [name]="'perm_c_left_' + ruleIndex + '_' + cIndex"
+                  >
+                    <option value="" disabled selected>Left Operand</option>
+                    @for (lo of availableLeftOperands; track $index) {
+                      <option [value]="lo">{{ lo }}</option>
+                    }
+                  </select>
+                  <select
+                    class="select select-xs select-bordered w-1/4"
+                    [(ngModel)]="c.operator"
+                    [name]="'perm_c_op_' + ruleIndex + '_' + cIndex"
+                  >
+                    <option value="" disabled selected>Op</option>
+                    @for (op of availableOperators; track $index) {
+                      <option [value]="op">{{ op }}</option>
+                    }
+                  </select>
+                  <input
+                    class="input input-xs input-bordered w-1/3"
+                    type="text"
+                    [(ngModel)]="c.rightOperand"
+                    [name]="'perm_c_right_' + ruleIndex + '_' + cIndex"
+                    placeholder="Value"
+                  />
+                  <button class="btn btn-xs btn-ghost btn-circle" (click)="removeConstraint(rule, cIndex)">
+                    <span class="material-symbols-rounded text-[14px]">delete</span>
+                  </button>
+                </div>
+              }
+              <button class="btn btn-xs btn-outline mt-1" (click)="addConstraint(rule)">+ Constraint</button>
+            </div>
+          </div>
+        }
+        <button class="btn btn-sm btn-secondary w-full mt-2" (click)="addRule('permissions')">+ Add Permission</button>
+      </fieldset>
+
+      <fieldset class="fieldset w-full bg-base-200 border border-base-300 p-4 rounded-box mt-4">
+        <legend class="fieldset-legend text-sm">Prohibitions</legend>
+        @for (rule of prohibitions; track ruleIndex; let ruleIndex = $index) {
+          <div class="bg-base-100 p-2 rounded mb-2 border border-base-300 relative">
+            <button
+              class="btn btn-sm btn-ghost btn-circle absolute top-1 right-1"
+              (click)="removeRule('prohibitions', ruleIndex)"
+            >
+              <span class="material-symbols-rounded">close</span>
+            </button>
+            <label class="fieldset-label text-xs">Action</label>
+            <select
+              class="select select-sm select-bordered w-full mb-2"
+              [(ngModel)]="rule.action"
+              [name]="'proh_action_' + ruleIndex"
+            >
+              <option value="" disabled selected>Select Action</option>
+              @for (act of availableActions; track $index) {
+                <option [value]="act">{{ act }}</option>
+              }
+            </select>
+
+            <div class="ml-4 pl-2 border-l border-base-300">
+              <label class="fieldset-label text-xs">Constraints</label>
+              @for (c of rule.constraints; track cIndex; let cIndex = $index) {
+                <div class="flex gap-2 items-center mb-2">
+                  <select
+                    class="select select-xs select-bordered w-1/3"
+                    [(ngModel)]="c.leftOperand"
+                    [name]="'proh_c_left_' + ruleIndex + '_' + cIndex"
+                  >
+                    <option value="" disabled selected>Left Operand</option>
+                    @for (lo of availableLeftOperands; track $index) {
+                      <option [value]="lo">{{ lo }}</option>
+                    }
+                  </select>
+                  <select
+                    class="select select-xs select-bordered w-1/4"
+                    [(ngModel)]="c.operator"
+                    [name]="'proh_c_op_' + ruleIndex + '_' + cIndex"
+                  >
+                    <option value="" disabled selected>Op</option>
+                    @for (op of availableOperators; track $index) {
+                      <option [value]="op">{{ op }}</option>
+                    }
+                  </select>
+                  <input
+                    class="input input-xs input-bordered w-1/3"
+                    type="text"
+                    [(ngModel)]="c.rightOperand"
+                    [name]="'proh_c_right_' + ruleIndex + '_' + cIndex"
+                    placeholder="Value"
+                  />
+                  <button class="btn btn-xs btn-ghost btn-circle" (click)="removeConstraint(rule, cIndex)">
+                    <span class="material-symbols-rounded text-[14px]">delete</span>
+                  </button>
+                </div>
+              }
+              <button class="btn btn-xs btn-outline mt-1" (click)="addConstraint(rule)">+ Constraint</button>
+            </div>
+          </div>
+        }
+        <button class="btn btn-sm btn-secondary w-full mt-2" (click)="addRule('prohibitions')">
+          + Add Prohibition
+        </button>
+      </fieldset>
+
+      <fieldset class="fieldset w-full bg-base-200 border border-base-300 p-4 rounded-box mt-4">
+        <legend class="fieldset-legend text-sm">Obligations</legend>
+        @for (rule of obligations; track ruleIndex; let ruleIndex = $index) {
+          <div class="bg-base-100 p-2 rounded mb-2 border border-base-300 relative">
+            <button
+              class="btn btn-sm btn-ghost btn-circle absolute top-1 right-1"
+              (click)="removeRule('obligations', ruleIndex)"
+            >
+              <span class="material-symbols-rounded">close</span>
+            </button>
+            <label class="fieldset-label text-xs">Action</label>
+            <select
+              class="select select-sm select-bordered w-full mb-2"
+              [(ngModel)]="rule.action"
+              [name]="'obl_action_' + ruleIndex"
+            >
+              <option value="" disabled selected>Select Action</option>
+              @for (act of availableActions; track $index) {
+                <option [value]="act">{{ act }}</option>
+              }
+            </select>
+
+            <div class="ml-4 pl-2 border-l border-base-300">
+              <label class="fieldset-label text-xs">Constraints</label>
+              @for (c of rule.constraints; track cIndex; let cIndex = $index) {
+                <div class="flex gap-2 items-center mb-2">
+                  <select
+                    class="select select-xs select-bordered w-1/3"
+                    [(ngModel)]="c.leftOperand"
+                    [name]="'obl_c_left_' + ruleIndex + '_' + cIndex"
+                  >
+                    <option value="" disabled selected>Left Operand</option>
+                    @for (lo of availableLeftOperands; track $index) {
+                      <option [value]="lo">{{ lo }}</option>
+                    }
+                  </select>
+                  <select
+                    class="select select-xs select-bordered w-1/4"
+                    [(ngModel)]="c.operator"
+                    [name]="'obl_c_op_' + ruleIndex + '_' + cIndex"
+                  >
+                    <option value="" disabled selected>Op</option>
+                    @for (op of availableOperators; track $index) {
+                      <option [value]="op">{{ op }}</option>
+                    }
+                  </select>
+                  <input
+                    class="input input-xs input-bordered w-1/3"
+                    type="text"
+                    [(ngModel)]="c.rightOperand"
+                    [name]="'obl_c_right_' + ruleIndex + '_' + cIndex"
+                    placeholder="Value"
+                  />
+                  <button class="btn btn-xs btn-ghost btn-circle" (click)="removeConstraint(rule, cIndex)">
+                    <span class="material-symbols-rounded text-[14px]">delete</span>
+                  </button>
+                </div>
+              }
+              <button class="btn btn-xs btn-outline mt-1" (click)="addConstraint(rule)">+ Constraint</button>
+            </div>
+          </div>
+        }
+        <button class="btn btn-sm btn-secondary w-full mt-2" (click)="addRule('obligations')">+ Add Obligation</button>
+      </fieldset>
+    }
   </div>
 
   <div class="flex flex-col items-center">
